@@ -7,15 +7,15 @@ function findCloseOps(
   maps: string[],
   playerPs: number[],
   endPoint: number[],
-  nbGames: number,
 ): number {
   let ops = 1337;
 
-  for (let i = 0; i < nbGames; i++) {
+  for (let i = 0; i < 4; i++) {
     let p = playerPs[i];
     if (maps[i][p] === '#') p++;
-    for (; p < maps[i].length; p++) {
+    while (p < maps[i].length) {
       if (maps[i][p] === '#') break;
+      p++;
     }
     if (maps[i][p] === '#') endPoint[i] = 0;
     if (p === maps[i].length) endPoint[i] = 1;
@@ -29,10 +29,9 @@ function checkIsGoodMove(
   maps: string[],
   playerPs: number[],
   stuns: number[],
-  nbGames: number,
 ): number {
   let major = 0;
-  for (let i = 0; i < nbGames; i++) {
+  for (let i = 0; i < 4; i++) {
     let p = playerPs[i];
     let j = 0;
     let m = move;
@@ -61,13 +60,12 @@ function findBestMoveOnPriority(
   stuns: number[],
 ): number {
   let move = 3;
-  let testMove = 0;
 
   if (stuns[playerPrio] > 0) return currentBestMove;
 
   let p = playerPs[playerPrio];
   for (let i = p; i < maps[playerPrio].length; i++) {
-    if (maps[playerPrio][p] === '#') break;
+    if (maps[playerPrio][p] == '#') break;
     p++;
   }
   return p - playerPs[playerPrio];
@@ -80,15 +78,14 @@ function findBestMove(
   stuns: number[],
   e0Stuns: number[],
   e1Stuns: number[],
-  nbGames: number,
 ): number {
   let bestMove = move;
   let testMoves = 3;
   let testMajor = 0;
-  let major = checkIsGoodMove(move, maps, playerPs, stuns, nbGames);
+  let major = checkIsGoodMove(move, maps, playerPs, stuns);
 
   while (testMoves <= 1) {
-    testMajor = checkIsGoodMove(testMoves, maps, playerPs, stuns, nbGames);
+    testMajor = checkIsGoodMove(testMoves, maps, playerPs, stuns);
     if (testMajor > major) {
       major = testMajor;
       bestMove = testMoves;
@@ -144,11 +141,9 @@ while (true) {
   // Write an action using console.log()
   // To debug: console.error('Debug messages...');
 
-  nextOps = findCloseOps(maps, playerPs, endPoint, nbGames);
+  nextOps = findCloseOps(maps, playerPs, endPoint);
 
-  console.error(nextOps);
-
-  if (checkIsGoodMove(nextOps, maps, playerPs, playerStun, nbGames) < 2) {
+  if (checkIsGoodMove(nextOps, maps, playerPs, playerStun) < 2) {
     nextOps = findBestMove(
       nextOps,
       maps,
@@ -156,11 +151,8 @@ while (true) {
       playerStun,
       enemy0Stun,
       enemy1Stun,
-      nbGames,
     );
   }
-
-  console.error(nextOps);
 
   if (nextOps === 1) console.log('UP');
   else if (nextOps === 2) console.log('LEFT');
